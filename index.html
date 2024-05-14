@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArconBMP - Ванильный сервер minecraft</title>
+    <style>
+        body {
+            font-family: 'Minecraft', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background: linear-gradient(to bottom, #ff9933, #ff5f00, #ff2500);
+            padding: 2rem 1rem 2rem;
+            text-align: center;
+            position: relative;
+        }
+        main {
+            padding: 2rem;
+            background: linear-gradient(135deg, #fdc830, #f37335, #8c549a, #4776e6, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            flex: 1;
+        }
+        a {
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            background-color: #333;
+        }
+        a:hover {
+            text-decoration: none;
+            background-color: #444;
+        }
+        h1, h2, p, li {
+            text-shadow: none;
+        }
+        .slide-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 250px;
+            height: 100%;
+            background: linear-gradient(to right, #8c549a, #4776e6);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        .slide-panel.open {
+            transform: translateX(0);
+        }
+        .slide-panel ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .slide-panel li {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .slide-panel li:last-child {
+            border-bottom: none;
+        }
+        footer {
+            background: linear-gradient(to right, #10b981, #29323c);
+            padding: 1rem;
+            text-align: center;
+        }
+        .toggle-button {
+            background-color: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 2rem;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2rem;
+            font-size: 1.2rem;
+        }
+        .toggle-button span {
+            display: none;
+        }
+        .toggle-button:before,
+        .toggle-button:after {
+            content: "";
+            display: block;
+            background-color: white;
+            height: 2px;
+            width: 16px;
+            position: absolute;
+            top: 50%;
+            right: 50%;
+            transform: translate(50%, -50%);
+        }
+        .toggle-button:after {
+            transform: translate(50%, -50%) rotate(90deg);
+        }
+        .toggle-button.open:before,
+        .toggle-button.open:after {
+            display: none;
+        }
+        .toggle-button.open span {
+            display: block;
+            background-color: white;
+            height: 2px;
+            width: 16px;
+            position: absolute;
+            top: 50%;
+            right: 50%;
+            transform: translate(50%, -50%) rotate(45deg);
+        }
+        @media screen and (max-width: 768px) {
+            .slide-panel {
+                width: 100%;
+            }
+        }
+        @keyframes gradient {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+        #time {
+            color: white;
+            font-size: 1.2rem;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem;
+            text-align: center;
+        }
+        /* Дополнительные стили для улучшения внешнего вида */
+        .welcome-text {
+            margin-bottom: 2rem;
+        }
+        .close-button {
+            background-color: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 2rem;
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            width: 2rem;
+            font-size: 1.2rem;
+        }
+        .close-button span {
+            display: none;
+        }
+        .close-button:before,
+        .close-button:after {
+            content: "";
+            display: block;
+            background-color: white;
+            height: 2px;
+            width: 16px;
+            position: absolute;
+            top: 50%;
+            right: 50%;
+            transform: translate(50%, -50%) rotate(-45deg);
+        }
+        .close-button:after {
+            transform: translate(50%, -50%) rotate(45deg);
+        }
+        .server-info {
+            margin-bottom: 2rem;
+        }
+        .server-info h2 {
+            margin-bottom: 1rem;
+        }
+        .server-info ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .server-info li {
+            margin-bottom: 0.5rem;
+        }
+        .social-links {
+            margin-bottom: 2rem;
+        }
+        .social-links h2 {
+            margin-bottom: 1rem;
+        }
+        .social-links ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        .social-links li {
+            margin-right: 1rem;
+        }
+        .apply-button {
+            display: block;
+            margin: 0 auto;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            background-color: #333;
+            text-align: center;
+        }
+        .apply-button:hover {
+            background-color: #444;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="site-title">ArconBMP - Ванильный сервер minecraft</h1>
+        <button class="toggle-button" id="toggle-button">
+            <span></span>
+        </button>
+        <div id="time"></div>
+    </header>
+    <main>
+        <p class="welcome-text">Добро пожаловать на официальный сайт ArconBMP! Здесь вы найдёте всё необходимое для проходки на наш сервер.</p>
+        <div class="server-info">
+            <h2>Плюсы нашего сервера!</h2>
+            <ul>
+                <li>24/7 Работа хостинга</li>
+                <li>Кастомные плагины</li>
+                <li>Отзывчивая Администрация</li>
+                <li>Не решает Донат</li>
+                <li>Добрые игроки</li>
+                <li>Частые ивенты</li>
+                <li>Обновления каждые 2 недели</li>
+                <li>Хороший античит</li>
+            </ul>
+        </div>
+        <div class="social-links">
+            <h2>Наши социальные сети</h2>
+            <ul>
+                <li><a href="https://t.me/arconbmp" target="_blank">Тelegram канал</a></li>
+                <li><a href="https://www.tiktok.com/@arconbmpacademy?_t=8l8knlXbRt1&_r=1" target="_blank">TikTok</a></li>
+                <li><a href="https://www.youtube.com/@ArconbmpAcademy" target="_blank">YouTube</a></li>
+                <li><a href="https://www.donationalerts.com/r/bs_porshe01e" target="_blank">Donation Alerts</a></li>
+            </ul>
+        </div>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdk6t1Oo73cScIVFxaT5zV6pn44gKUPemxVE-IcGwQateOlEg/viewform" target="_blank" class="apply-button">Подать заявку на сервер</a>
+        <div class="slide-panel">
+            <button class="close-button" id="close-button">
+                <span></span>
+            </button>
+            <ul>
+                <li><a href="https://t.me/arconbmp" target="_blank">Telegram</a></li>
+                <li><a href="https://sites.google.com/view/arconbmp/%D0%B3%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F-%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0" target="_blank">Форум</a></li>
+            </ul>
+        </div>
+    </main>
+    <footer>
+        <p><a href="https://docs.google.com/forms/d/e/1FAIpQLSdk6t1Oo73cScIVFxaT5zV6pn44gKUPemxVE-IcGwQateOlEg/viewform" target="_blank">Как попасть на проект ArconBMP? 
+        <ul></ul>Оставьте <strong>заявку на форуме</strong></a></p>
+    </footer>
+    <script>
+        document.getElementById('toggle-button').addEventListener('click', function() {
+            document.querySelector('.slide-panel').classList.toggle('open');
+            this.classList.toggle('open');
+        });
+        document.getElementById('close-button').addEventListener('click', function() {
+            document.querySelector('.slide-panel').classList.remove('open');
+            document.querySelector('.toggle-button').classList.remove('open');
+        });
+
+        function updateTime() {
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
+            var timeString = hours + ':' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+            document.getElementById('time').innerHTML = timeString;
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+</body>
+</html>
